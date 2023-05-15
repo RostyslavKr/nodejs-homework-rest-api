@@ -1,5 +1,15 @@
-const HttpError = require('./HttpError');
+const {
+  listContact,
+  getById,
+  addContact,
+  removeContact,
+  updateContact,
+} = require('./routerFn');
 
 module.exports = {
-  HttpError,
+  listContact,
+  getById,
+  addContact,
+  removeContact,
+  updateContact,
 };
