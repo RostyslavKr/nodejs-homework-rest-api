@@ -1,15 +1,5 @@
-const {
-  listContact,
-  getById,
-  addContact,
-  removeContact,
-  updateContact,
-} = require('./routerFn');
+const HttpError = require('./HttpError');
 
 module.exports = {
-  listContact,
-  getById,
-  addContact,
-  removeContact,
-  updateContact,
+  HttpError,
 };

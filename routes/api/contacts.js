@@ -6,7 +6,10 @@ const {
   addContact,
   removeContact,
   updateContact,
-} = require('../../helpers');
+} = require('..//../controllers');
+
+const { validateBody } = require('..//../decorators');
+const { contactsSchema } = require('..//..//schemas');
 
 const router = express.Router();
 
@@ -14,10 +17,10 @@ router.get('/', listContact);
 
 router.get('/:contactId', getById);
 
-router.post('/', addContact);
+router.post('/', validateBody(contactsSchema), addContact);
 
 router.delete('/:contactId', removeContact);
 
-router.put('/:contactId', updateContact);
+router.put('/:contactId', validateBody(contactsSchema), updateContact);
 
 module.exports = router;
