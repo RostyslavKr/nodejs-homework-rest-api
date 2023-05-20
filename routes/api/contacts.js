@@ -1,17 +1,16 @@
 const express = require('express');
-
+const router = express.Router();
 const {
   listContact,
   getById,
   addContact,
   removeContact,
   updateContact,
-} = require('..//../controllers');
+  updateFavoriteById,
+} = require('..//..//controllers/contactsControler');
 
-const { validateBody } = require('..//../decorators');
-const { contactsSchema } = require('..//..//schemas');
-
-const router = express.Router();
+const { validateBody, validateStatusBody } = require('..//../decorators');
+const { contactsSchema, updateFavoriteSchema } = require('..//..//schemas');
 
 router.get('/', listContact);
 
@@ -22,5 +21,11 @@ router.post('/', validateBody(contactsSchema), addContact);
 router.delete('/:contactId', removeContact);
 
 router.put('/:contactId', validateBody(contactsSchema), updateContact);
+
+router.patch(
+  '/:contactId',
+  validateStatusBody(updateFavoriteSchema),
+  updateFavoriteById
+);
 
 module.exports = router;
