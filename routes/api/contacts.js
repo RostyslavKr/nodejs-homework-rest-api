@@ -23,7 +23,7 @@ router.delete('/:contactId', removeContact);
 router.put('/:contactId', validateBody(contactsSchema), updateContact);
 
 router.patch(
-  '/:contactId',
+  '/:contactId/favorite',
   validateStatusBody(updateFavoriteSchema),
   updateFavoriteById
 );
