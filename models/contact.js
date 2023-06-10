@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const { handleMongooseError } = require('..//..//helpers');
+const { handleMongooseError } = require('../helpers');
 
 const contact = new Schema(
   {
@@ -17,6 +17,10 @@ const contact = new Schema(
     favorite: {
       type: Boolean,
       default: false,
+    },
+    owner: {
+      type: Schema.Types.ObjectId,
+      ref: 'user',
     },
   },
   { versionKey: false, timestamps: true }
