@@ -3,6 +3,7 @@ const { handleMongooseError } = require('../decorators');
 
 const userSchema = new Schema(
   {
+    avatarURL: { type: String },
     email: {
       type: String,
       required: [true, 'Email is required'],
