@@ -1,13 +1,14 @@
 const bcrypt = require('bcrypt');
 const gravatar = require('gravatar');
 const Jimp = require('jimp');
+const { nanoid } = require('nanoid');
 const fs = require('fs/promises');
 const path = require('path');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const { HttpError } = require('../helpers');
+const { HttpError, sendEmail } = require('../helpers');
 const { ctrlWrapper } = require('../decorators');
-const { SECRET_KEY } = process.env;
+const { SECRET_KEY, PROJECT_URL } = process.env;
 const avatarPath = path.resolve('public', 'avatars');
 
 const register = async (req, res) => {
@@ -19,15 +20,74 @@ const register = async (req, res) => {
   }
 
   const hashPassword = await bcrypt.hash(password, 10);
+  const verificationCode = nanoid();
+
   const avatarURL = gravatar.url(email);
   const result = await User.create({
     ...req.body,
     password: hashPassword,
     avatarURL,
+    verificationCode,
   });
 
+  const verifyEmail = {
+    to: email,
+    subject: 'Verify email',
+    html: `<a target="_blank" href="${PROJECT_URL}/users/verify/${verificationCode}">Click to verify email</a>`,
+  };
+
+  await sendEmail(verifyEmail);
+
+  const { _id: id } = result;
+
+  const payload = {
+    id,
+  };
+
+  const token = jwt.sign(payload, SECRET_KEY, { expiresIn: '23h' });
+
   res.status(201).json({
+    token,
     user: { email: result.email, subscription: result.subscription },
+  });
+};
+
+const verify = async (req, res) => {
+  const { verificationCode } = req.params;
+  const user = await User.findOne({ verificationCode });
+  if (!user) {
+    throw HttpError(404, 'User not found');
+  }
+  await User.findByIdAndUpdate(user._id, {
+    verify: true,
+    verificationCode: '',
+  });
+
+  res.json({
+    message: 'Verify success',
+  });
+};
+
+const resendVerifyEmail = async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw HttpError(404);
+  }
+  if (user.verify) {
+    throw HttpError(400, 'Verification has already been passed');
+  }
+
+  const verifyEmail = {
+    to: email,
+    subject: 'Verify email',
+    html: `<a target="_blank" href="${PROJECT_URL}/users/verify/${user.verificationCode}">Click to verify email</a>`,
+  };
+
+  await sendEmail(verifyEmail);
+
+  res.json({
+    message: 'Verify email send',
   });
 };
 
@@ -101,4 +161,6 @@ module.exports = {
   getCurrent: ctrlWrapper(getCurrent),
   logout: ctrlWrapper(logout),
   avatarUpload: ctrlWrapper(avatarUpload),
+  verify: ctrlWrapper(verify),
+  resendVerifyEmail: ctrlWrapper(resendVerifyEmail),
 };
