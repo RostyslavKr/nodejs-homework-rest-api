@@ -38,16 +38,7 @@ const register = async (req, res) => {
 
   await sendEmail(verifyEmail);
 
-  const { _id: id } = result;
-
-  const payload = {
-    id,
-  };
-
-  const token = jwt.sign(payload, SECRET_KEY, { expiresIn: '23h' });
-
   res.status(201).json({
-    token,
     user: { email: result.email, subscription: result.subscription },
   });
 };
@@ -97,8 +88,11 @@ const login = async (req, res) => {
   if (!user) {
     throw HttpError(401, 'Email or password is wrong');
   }
-
+  if (!user.verify) {
+    throw HttpError(401, 'Email is not verified');
+  }
   const passwordCompare = await bcrypt.compare(password, user.password);
+
   if (!passwordCompare) {
     throw HttpError(401, 'Email or password is wrong');
   }
