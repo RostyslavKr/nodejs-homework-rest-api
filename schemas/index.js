@@ -6,4 +6,6 @@ const userRegisterSchema = require('./userRegisterSchema');
 
 const userLoginSchema = require('./userLoginSchema');
 
-module.exports = { contactsSchema, updateFavoriteSchema, userRegisterSchema, userLoginSchema };
+const userEmailSchema = require('./userEmailSchema');
+
+module.exports = { contactsSchema, updateFavoriteSchema, userRegisterSchema, userLoginSchema, userEmailSchema };

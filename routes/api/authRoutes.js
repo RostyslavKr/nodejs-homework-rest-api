@@ -3,6 +3,8 @@ const express = require('express');
 const {
   register,
   login,
+  verify,
+  resendVerifyEmail,
   getCurrent,
   logout,
   avatarUpload,
@@ -10,7 +12,11 @@ const {
 
 const { authenticate, upload } = require('../../middlewares');
 
-const { userRegisterSchema, userLoginSchema } = require('../../schemas');
+const {
+  userRegisterSchema,
+  userLoginSchema,
+  userEmailSchema,
+} = require('../../schemas');
 
 const { validateBody } = require('../../decorators');
 const jsonParser = express.json();
@@ -24,6 +30,9 @@ router.post(
   register
 );
 
+router.get('/verify/:verificationCode', verify);
+
+router.post('/verify', validateBody(userEmailSchema), resendVerifyEmail);
 // signin
 router.post('/login', jsonParser, validateBody(userLoginSchema), login);
 
